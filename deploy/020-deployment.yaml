@@ -1,0 +1,39 @@
+kind: Deployment
+apiVersion: apps/v1
+
+metadata:
+  name: nodejs-mqtt-integration-example
+  labels:
+    deployment: nodejs-mqtt-integration-example
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      deployment: nodejs-mqtt-integration-example
+  template:
+    metadata:
+      labels:
+        deployment: nodejs-mqtt-integration-example
+    spec:
+      containers:
+        - name: service
+          #image: ghcr.io/drogue-iot/nodejs-mqtt-integration-example-native:latest
+          image: docker.io/dbevenius/nodejs-mqtt-example:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /health/live
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /health/ready
+          envFrom:
+            - secretRef:
+                name: credentials
+            - configMapRef:
+                name: configuration
